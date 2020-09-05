@@ -1,6 +1,5 @@
 #!/bin/bash
 tmpdir=`mktemp -d -p /usr/local/share/`
-cd $tmpdir
 
 apt-get update
 
@@ -24,7 +23,7 @@ cp ../scripts/screen/raidmgr_static /usr/bin/
 crontab -l > $tmpdir/cron.tmp
 if ! grep -q "checkRAID.bash" $tmpdir/cron.tmp; then
   printf "\n*/5 * * * * /bin/checkRAID.bash > /dev/null 2>&1\n" >> $tmpdir/cron.tmp
-  crontab /tmp/cron.tmp
+  crontab $tmpdir/cron.tmp
 fi
 /bin/checkRAID.bash && systemctl restart cloudshell-lcd
 
@@ -44,6 +43,7 @@ echo "CREATE DATABASE nextclouddb;GRANT ALL ON nextclouddb.* TO 'nextcloud'@'loc
 cat $tmpdir/db-create.sql | mysql -u root
 
 wget -O $tmpdir/nextcloud.tar.bz2 https://download.nextcloud.com/server/releases/nextcloud-19.0.2.tar.bz2
+cd $tmpdir
 tar -xf nextcloud.tar.bz2
 if [[ -e /var/www/html ]]; then
   mv /var/www/html /var/www/html~
