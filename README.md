@@ -5,11 +5,13 @@ Technically this could be done on any SBC that has my Baldnerd Debian base image
 
 It's not end-user ready or distributable. Just my own scripts to get up and going quickly.
 
-In my case, I deploy my Baldnerd Debian base image from baldnerd.com, update it with apt, and then clone and run this script. Then I add the fan script to my crontab @reboot. Haven't bothered to get the screen working just yet.
+In my case, I deploy my Baldnerd Debian base image from baldnerd.com, update it with apt, and then clone and run this script.
 
-From there, I take the two drives in my CloudShell-2, set up as a mirror, and wipe 'em. Then, mount that mirror to /var/www/html/data with fstab.
+From there, I take the two drives in my CloudShell-2, set up as a mirror, and wipe 'em. Then, mount that mirror to /mnt/data with fstab.
 
-THEN (and only then), activate NextCloud by following the usual in-browser config, leaving the data dir as default.
+Once mounted, give access: chown www-data:www-data /mnt/data
+
+THEN (and only then), activate NextCloud by following the usual in-browser config, setting the data target to /mnt/data
 
 Resources:
 
