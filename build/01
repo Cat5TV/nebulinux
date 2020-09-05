@@ -1,6 +1,11 @@
 #!/bin/bash
+tmpdir=`mktemp -d -p /usr/local/share/`
+cd $tmpdir
 
 apt-get update
+
+# Required Packages
+apt-get install -y lbzip2
 
 # Fan control
 apt-get install -y i2c-tools
@@ -16,10 +21,21 @@ apt-get install -y net-tools
 # Mock X-server
 apt-get install -y xvfb
 
-# Snap
-apt-get install -y snapd
+# LAMP Stack
+apt-get install -y apache2
+apt-get install -y mariadb-server && yes | mysql_secure_installation
+apt-get install -y php libapache2-mod-php php-gd php-json php-mysql php-curl php-intl php-imagick php-zip php-xml php-simplexml php-dom php-mbstring
+
+systemctl reload apache2
 
 # Nextcloud
-snap install nextcloud
+echo "CREATE DATABASE nextclouddb;GRANT ALL ON nextclouddb.* TO 'nextcloud_user'@'localhost' IDENTIFIED BY 'strong password';FLUSH PRIVILEGES;EXIT;" > $tmpdir/db-create.sql
+cat $tmpdir/db-create.sql | mysql -u root
 
-snap set nextcloud php.memory-limit=1024M
+wget -O $tmpdir/nextcloud.tar.bz2 https://download.nextcloud.com/server/releases/nextcloud-19.0.2.tar.bz2
+tar -xf nextcloud.tar.bz2
+if [[ -e /var/www/html ]]; then
+  mv /var/www/html /var/www/html~
+fi
+mv nextcloud /var/www/html
+chown -R www-data:www-data /var/www/html
