@@ -47,7 +47,7 @@ get_external_ip() {
 }
 
 get_full_date() {
-   export DATE=$(date +"%Y-%m-%d %H:%M:%S")
+   export DATE=$(date +"%Y-%m-%d %H:%M")
 }
 
 get_hostname() {
@@ -236,7 +236,6 @@ while true; do
    #echo -e "TX: $CBLUE$NET_TX MB/s$COFF RX: $CBLUE$NET_RX MB/s$COFF" > $oc
    # Line Disk Space
 
-   
    for i in "${!SATA[@]}"
    do
       echo "" > $oc
