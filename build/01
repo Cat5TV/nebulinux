@@ -11,12 +11,22 @@ apt-get install -y lbzip2
 apt-get install -y i2c-tools
 apt-get install -y smartmontools
 
-# CloudShell 2 Screen
+# Cloudshell2
+apt-get install -y odroid-cloudshell cloudshell2-fan cloudshell-lcd
 apt-get install -y curl
 apt-get install -y sysstat
 apt-get install -y kbd
 apt-get install -y lsb-release
 apt-get install -y net-tools
+rm /bin/cloudshell-lcd
+cp ../scripts/screen/cloudshell-lcd ../scripts/screen/checkRAID.bash /bin/
+cp ../scripts/screen/raidmgr_static /usr/bin/
+crontab -l > $tmpdir/cron.tmp
+if ! grep -q "checkRAID.bash" $tmpdir/cron.tmp; then
+  printf "\n*/5 * * * * /bin/checkRAID.bash > /dev/null 2>&1\n" >> $tmpdir/cron.tmp
+  crontab /tmp/cron.tmp
+fi
+/bin/checkRAID.bash && systemctl restart cloudshell-lcd
 
 # Mock X-server
 apt-get install -y xvfb

@@ -10,3 +10,8 @@ In my case, I deploy my Baldnerd Debian base image from baldnerd.com, update it 
 From there, I take the two drives in my CloudShell-2, set up as a mirror, and wipe 'em. Then, mount that mirror to /var/www/html/data with fstab.
 
 THEN (and only then), activate NextCloud by following the usual in-browser config, leaving the data dir as default.
+
+Resources:
+
+CloudShell 2 Data Recovery Guide:
+https://wiki.odroid.com/accessory/add-on_boards/xu4_cloudshell2/data_recovery
