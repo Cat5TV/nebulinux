@@ -29,7 +29,8 @@ apt-get install -y php libapache2-mod-php php-gd php-json php-mysql php-curl php
 systemctl reload apache2
 
 # Nextcloud
-echo "CREATE DATABASE nextclouddb;GRANT ALL ON nextclouddb.* TO 'nextcloud_user'@'localhost' IDENTIFIED BY 'strong password';FLUSH PRIVILEGES;EXIT;" > $tmpdir/db-create.sql
+password=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
+echo "CREATE DATABASE nextclouddb;GRANT ALL ON nextclouddb.* TO 'nextcloud'@'localhost' IDENTIFIED BY '$password';FLUSH PRIVILEGES;EXIT;" > $tmpdir/db-create.sql
 cat $tmpdir/db-create.sql | mysql -u root
 
 wget -O $tmpdir/nextcloud.tar.bz2 https://download.nextcloud.com/server/releases/nextcloud-19.0.2.tar.bz2
@@ -39,3 +40,18 @@ if [[ -e /var/www/html ]]; then
 fi
 mv nextcloud /var/www/html
 chown -R www-data:www-data /var/www/html
+
+echo "==============================================="
+echo "All done! You must activate your installation."
+echo
+echo "Visit your server IP in your browser and use the following info:"
+echo
+echo "Username / Password: Create your own"
+echo "Data folder: This should point to your array, or better yet, leave default and mount your array there."
+echo "Database User: nextcloud"
+echo "Database Password: $password"
+echo "Database Name: nextclouddb"
+echo "Database Server: localhost"
+echo
+echo "==============================================="
+echo
