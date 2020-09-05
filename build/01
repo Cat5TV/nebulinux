@@ -41,6 +41,9 @@ fi
 mv nextcloud /var/www/html
 chown -R www-data:www-data /var/www/html
 
+# Clean up!
+rm -rf $tmpdir
+
 echo "==============================================="
 echo "All done! You must activate your installation."
 echo
