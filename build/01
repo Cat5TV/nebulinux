@@ -36,6 +36,12 @@ apt-get install -y xvfb
 apt-get install -y apache2
 apt-get install -y mariadb-server && yes | mysql_secure_installation
 apt-get install -y php libapache2-mod-php php-gd php-json php-mysql php-curl php-intl php-imagick php-zip php-xml php-simplexml php-dom php-mbstring
+# Determine which php.ini file apache is using
+echo "<?php print php_ini_loaded_file(); ?>" > /var/www/html/php-ini-detector.php
+wget http://localhost/php-ini-detector.php -O $tmpdir/php-ini-location.txt
+phpini=$(cat $tmpdir/php-ini-location.txt)
+# Increase the memory to 1 GB (half the RAM of a XU4)
+/bin/sed -i '/memory_limit/c\memory_limit=1G' $phpini
 
 systemctl reload apache2
 
