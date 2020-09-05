@@ -2,10 +2,24 @@
 
 apt-get update
 
+# Fan control
+apt-get install -y i2c-tools
+apt-get install -y smartmontools
+
+# CloudShell 2 Screen
+apt-get install -y curl
+apt-get install -y sysstat
+apt-get install -y kbd
+apt-get install -y lsb-release
+apt-get install -y net-tools
+
+# Mock X-server
 apt-get install -y xvfb
 
+# Snap
 apt-get install -y snapd
 
+# Nextcloud
 snap install nextcloud
 
 snap set nextcloud php.memory-limit=1024M
