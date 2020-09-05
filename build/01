@@ -5,6 +5,7 @@ apt-get update
 
 # Required Packages
 apt-get install -y lbzip2
+apt-get install -y imagemagick
 
 # Fan control
 apt-get install -y i2c-tools
