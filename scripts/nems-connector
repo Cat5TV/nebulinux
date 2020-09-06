@@ -1,0 +1,7 @@
+#!/usr/bin/env php
+<?php
+  $nextclouddata = file_get_contents('http://10.0.0.151/ocs/v2.php/apps/serverinfo/api/v1/info');
+print_r($nextclouddata);
+
+?>
+

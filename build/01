@@ -63,6 +63,15 @@ chown -R www-data:www-data /var/www/html
 # Clean up!
 rm -rf $tmpdir
 
+hn=$(/bin/hostname)
+if [[ $hn != "nebulinux" ]]; then
+  printf "Changing Hostname... "
+  /bin/sed -i -- 's/'"$hn"'/nebulinux/g' /etc/hosts
+  /bin/sed -i -- 's/'"$hn"'/nebulinux/g' /etc/hostname
+  hostnamectl set-hostname nebulinux
+  echo Done.
+fi
+
 echo "==============================================="
 echo "All done! You must activate your installation."
 echo
