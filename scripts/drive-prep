@@ -1,0 +1,21 @@
+#!/bin/bash
+if [[ -e /dev/sdb ]]; then
+  echo "*********************************
+***           ERROR           ***
+*********************************
+Your drives are not set to RAID 1 mode.
+Power down your CloudShell 2, adjust the dip switch,
+then hold the RAID Setup key for 30 seconds while powering up."
+  exit
+fi
+
+if [[ -e /dev/sda ]]; then
+  if [[ -e /dev/sda1 ]]; then
+    echo "*********************************
+***           ERROR           ***
+*********************************
+Your disk array contains partitions.
+Please remove the partitions and try again."
+    exit
+  fi
+fi
