@@ -1,5 +1,5 @@
-# next-odroid
-NextCloud for ODROID-XU4-based systems.
+# Nebulinux
+Nebulinux attempts to bring NextCloud to ODROID-XU4-based systems in a distributable way.
 
 Technically this could be done on any SBC that has my Baldnerd Debian base image runnning. Just that my intended use is for an ODROID CloudShell-2 based system, to create your own NextCloud server using this sleek little box.
 
