@@ -14,9 +14,10 @@ if [[ $0 != /usr/local/share/nebulinux/build/01 ]]; then
 
   fi
 
-  echo $0
-  cd /usr/local/share/nebulinux/build
-  ./01
+  echo
+  echo "Please run: /usr/local/share/nebulinux/build/01"
+  echo
+  exit 1
 
 else
 
