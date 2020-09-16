@@ -35,8 +35,42 @@ else
   exit 0
 fi
 
+# Clear old entries in /etc/fstab
+/bin/sed -i~ '/\/mnt\/data/d' /etc/fstab
+
 # Create /dev/sda1 partition using entire size of array
 echo 'type=83' | sfdisk /dev/sda > /dev/null 2>&1
 
 # Create filesystem on /dev/sda1
 yes | mkfs.ext3 /dev/sda1
+
+# Get the UUID of /dev/sda1
+uuid=$(blkid -s UUID -o value /dev/sda1)
+
+# Create the mountpoint
+if [[ ! -e /mnt/data ]]; then
+  mkdir /mnt/data
+else
+  if mount | grep -q "/mnt/data"; then
+    umount /mnt/data
+  fi
+fi
+
+# Make /mnt/data immutable
+chattr +i /mnt/data
+
+# Create fstab entry
+echo "UUID=$uuid	/mnt/data	ext3	errors=remount-ro,noatime,discard	0	1" >> /etc/fstab
+
+# Mount it
+mount -a
+
+if mount | grep -q "/mnt/data"; then
+  chown -R www-data:www-data /mnt/data
+  echo "Success! /mnt/data is now setup for your Array. Use this when activating NextCloud."
+else
+  # Delete the failed entry from /etc/fstab
+  /bin/sed -i~ '/\/mnt\/data/d' /etc/fstab
+  echo "Failure!"
+fi
+
