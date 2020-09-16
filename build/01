@@ -1,88 +1,111 @@
 #!/bin/bash
-tmpdir=`mktemp -d -p /usr/local/share/`
-
-apt-get update
-
-# Required Packages
-apt-get install -y lbzip2
-apt-get install -y imagemagick
-
-# Fan control
-apt-get install -y i2c-tools
-apt-get install -y smartmontools
-
-# Cloudshell2
-apt-get install -y odroid-cloudshell cloudshell2-fan cloudshell-lcd
-apt-get install -y curl
-apt-get install -y sysstat
-apt-get install -y kbd
-apt-get install -y lsb-release
-apt-get install -y net-tools
-apt-get install -y figlet
-apt-get install -y console-setup-linux
-rm /bin/cloudshell-lcd
-cp ../scripts/screen/cloudshell-lcd ../scripts/screen/checkRAID.bash /bin/
-cp ../scripts/screen/raidmgr_static /usr/bin/
-crontab -l > $tmpdir/cron.tmp
-if ! grep -q "checkRAID.bash" $tmpdir/cron.tmp; then
-  printf "\n*/5 * * * * /bin/checkRAID.bash > /dev/null 2>&1\n" >> $tmpdir/cron.tmp
-  crontab $tmpdir/cron.tmp
-fi
-/bin/checkRAID.bash && systemctl restart cloudshell-lcd
-
-# Mock X-server
-apt-get install -y xvfb
-
-# LAMP Stack
-apt-get install -y apache2
-apt-get install -y mariadb-server && yes | mysql_secure_installation
-apt-get install -y php libapache2-mod-php php-gd php-json php-mysql php-curl php-intl php-imagick php-zip php-xml php-simplexml php-dom php-mbstring
-# Determine which php.ini file apache is using
-echo "<?php print php_ini_loaded_file(); ?>" > /var/www/html/php-ini-detector.php
-wget http://localhost/php-ini-detector.php -O $tmpdir/php-ini-location.txt
-phpini=$(cat $tmpdir/php-ini-location.txt)
-# Increase the memory to 1 GB (half the RAM of a XU4)
-/bin/sed -i '/memory_limit/c\memory_limit=1G' $phpini
-
-systemctl reload apache2
-
-# Nextcloud
-password=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
-echo "CREATE DATABASE nextclouddb;GRANT ALL ON nextclouddb.* TO 'nextcloud'@'localhost' IDENTIFIED BY '$password';FLUSH PRIVILEGES;EXIT;" > $tmpdir/db-create.sql
-cat $tmpdir/db-create.sql | mysql -u root
-
-wget -O $tmpdir/nextcloud.tar.bz2 https://download.nextcloud.com/server/releases/nextcloud-19.0.2.tar.bz2
-cd $tmpdir
-tar -xf nextcloud.tar.bz2
-if [[ -e /var/www/html ]]; then
-  mv /var/www/html /var/www/html~
-fi
-mv nextcloud /var/www/html
-chown -R www-data:www-data /var/www/html
-
-# Clean up!
-rm -rf $tmpdir
-
-hn=$(/bin/hostname)
-if [[ $hn != "nebulinux" ]]; then
-  printf "Changing Hostname... "
-  /bin/sed -i -- 's/'"$hn"'/nebulinux/g' /etc/hosts
-  /bin/sed -i -- 's/'"$hn"'/nebulinux/g' /etc/hostname
-  hostnamectl set-hostname nebulinux
-  echo Done.
+if [[ -e /var/www/nextcloud ]]; then
+  echo "Nebulinux is already compiled. Aborting."
+  exit 1
 fi
 
-echo "==============================================="
-echo "All done! You must activate your installation."
-echo
-echo "Visit your server IP in your browser and use the following info:"
-echo
-echo "Username / Password: Create your own"
-echo "Data folder: This should point to your array, or better yet, leave default and mount your array there."
-echo "Database User: nextcloud"
-echo "Database Password: $password"
-echo "Database Name: nextclouddb"
-echo "Database Server: localhost"
-echo
-echo "==============================================="
-echo
+# Ensure the installer is being run from /usr/local/share/nebulinux/build
+if [[ $0 != /usr/local/share/nebulinux/build/01 ]]; then
+
+  if [[ ! -e /usr/local/share/nebulinux ]]; then
+
+    cd /usr/local/share/
+    git clone https://github.com/Cat5TV/nebulinux
+
+  fi
+
+  cd /usr/local/share/nebulinux/build
+  ./01
+
+else
+
+  tmpdir=`mktemp -d -p /usr/local/share/`
+
+  apt-get update
+
+  # Required Packages
+  apt-get install -y lbzip2
+  apt-get install -y imagemagick
+
+  # Fan control
+  apt-get install -y i2c-tools
+  apt-get install -y smartmontools
+
+  # Cloudshell2
+  apt-get install -y odroid-cloudshell cloudshell2-fan cloudshell-lcd
+  apt-get install -y curl
+  apt-get install -y sysstat
+  apt-get install -y kbd
+  apt-get install -y lsb-release
+  apt-get install -y net-tools
+  apt-get install -y figlet
+  apt-get install -y console-setup-linux
+  rm /bin/cloudshell-lcd
+  cp ../scripts/screen/cloudshell-lcd ../scripts/screen/checkRAID.bash /bin/
+  cp ../scripts/screen/raidmgr_static /usr/bin/
+  crontab -l > $tmpdir/cron.tmp
+  if ! grep -q "checkRAID.bash" $tmpdir/cron.tmp; then
+    printf "\n*/5 * * * * /bin/checkRAID.bash > /dev/null 2>&1\n" >> $tmpdir/cron.tmp
+    crontab $tmpdir/cron.tmp
+  fi
+  /bin/checkRAID.bash && systemctl restart cloudshell-lcd
+
+  # Mock X-server
+  apt-get install -y xvfb
+
+  # LAMP Stack
+  apt-get install -y apache2
+  apt-get install -y mariadb-server && yes | mysql_secure_installation
+  apt-get install -y php libapache2-mod-php php-gd php-json php-mysql php-curl php-intl php-imagick php-zip php-xml php-simplexml php-dom php-mbstring
+  # Determine which php.ini file apache is using
+  echo "<?php print php_ini_loaded_file(); ?>" > /var/www/html/php-ini-detector.php
+  wget http://localhost/php-ini-detector.php -O $tmpdir/php-ini-location.txt
+  phpini=$(cat $tmpdir/php-ini-location.txt)
+  # Increase the memory to 1 GB (half the RAM of a XU4)
+  /bin/sed -i '/memory_limit/c\memory_limit=1G' $phpini
+
+  systemctl reload apache2
+
+  # Nextcloud
+  password=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
+  echo "CREATE DATABASE nextclouddb;GRANT ALL ON nextclouddb.* TO 'nextcloud'@'localhost' IDENTIFIED BY '$password';FLUSH PRIVILEGES;EXIT;" > $tmpdir/db-create.sql
+  cat $tmpdir/db-create.sql | mysql -u root
+
+  wget -O $tmpdir/nextcloud.tar.bz2 https://download.nextcloud.com/server/releases/nextcloud-19.0.2.tar.bz2
+  cd $tmpdir
+  tar -xf nextcloud.tar.bz2
+  chown -R www-data:www-data /var/www/nextcloud
+  if [[ -e /var/www/html ]]; then
+    rm -rf /var/www/html
+  fi
+  ln -s nextcloud /var/www/html
+  chown www-data:www-data /var/www/html
+
+  # Clean up!
+  rm -rf $tmpdir
+
+  hn=$(/bin/hostname)
+  if [[ $hn != "nebulinux" ]]; then
+    printf "Changing Hostname... "
+    /bin/sed -i -- 's/'"$hn"'/nebulinux/g' /etc/hosts
+    /bin/sed -i -- 's/'"$hn"'/nebulinux/g' /etc/hostname
+    hostnamectl set-hostname nebulinux
+    echo Done.
+  fi
+
+  echo "==============================================="
+  echo "All done! You must activate your installation."
+  echo
+  echo "Visit your server IP in your browser and use the following info:"
+  echo
+  echo "Username / Password: Create your own"
+  echo "Data folder: This should point to your array, or better yet, leave default and mount your array there."
+  echo "Database User: nextcloud"
+  echo "Database Password: $password"
+  echo "Database Name: nextclouddb"
+  echo "Database Server: localhost"
+  echo
+  echo "==============================================="
+  echo
+
+fi
