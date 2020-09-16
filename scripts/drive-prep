@@ -38,6 +38,11 @@ fi
 # Clear old entries in /etc/fstab
 /bin/sed -i~ '/\/mnt\/data/d' /etc/fstab
 
+# Unmount it if mounted
+if mount | grep -q "/mnt/data"; then
+  umount /mnt/data
+fi
+
 # Create /dev/sda1 partition using entire size of array
 echo 'type=83' | sfdisk /dev/sda > /dev/null 2>&1
 
