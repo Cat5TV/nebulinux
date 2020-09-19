@@ -113,7 +113,15 @@ if mount | grep -q "/mnt/data"; then
   password=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
   echo "CREATE DATABASE nextclouddb;GRANT ALL ON nextclouddb.* TO 'nextcloud'@'localhost' IDENTIFIED BY '$password';FLUSH PRIVILEGES;EXIT;" > $tmpdir/db-create.sql
   cat $tmpdir/db-create.sql | mysql -u root
-
+  # Activate Nextcloud as basedir
+  if [[ -d /var/www/html ]]; then
+    if [[ -e /var/www/html~ ]]; then
+      rm -rf /var/www/html~
+    fi
+    mv /var/www/html /var/www/html~
+    ln -s nextcloud /var/www/html
+    chown www-data:www-data /var/www/html
+  fi
   chown -R www-data:www-data /mnt/data
   echo "Success! /mnt/data is now setup for your Array. Use this when activating NextCloud."
   echo
