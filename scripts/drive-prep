@@ -72,8 +72,13 @@ echo "## Configuration created by Nebulinux drive-prep command.
 ## If you modify settings here and then run drive-prep, you will lose your settings.
 
 quiet
-command_line {
-    hdparm -S 25 /dev/disk/by-uuid/$uuid
+
+/dev/sda {
+  ## 0 disable spindown
+  ## 1 to 240 = 5 second increments
+  ## 241 to 251 30 minutes increments
+  #  Nebulinux default is 242 / 1 hour
+  spindown_time = 242
 }
 " > /etc/hdparm.conf
 
