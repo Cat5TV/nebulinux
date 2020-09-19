@@ -67,6 +67,16 @@ chattr +i /mnt/data
 # Create fstab entry
 echo "UUID=$uuid	/mnt/data	ext3	errors=remount-ro,noatime,discard	0	1" >> /etc/fstab
 
+# Set spindown delay and make persistent
+echo "## Configuration created by Nebulinux drive-prep command.
+## If you modify settings here and then run drive-prep, you will lose your settings.
+
+quiet
+command_line {
+    hdparm -S 25 /dev/disk/by-uuid/$uuid
+}
+" > /etc/hdparm.conf
+
 # Mount it
 mount -a
 

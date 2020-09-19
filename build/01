@@ -33,6 +33,9 @@ else
   apt-get install -y i2c-tools
   apt-get install -y smartmontools
 
+  # Drive spin-down control
+  apt-get install -y hdparm
+
   # Cloudshell2
   apt-get install -y odroid-cloudshell cloudshell2-fan cloudshell-lcd
   apt-get install -y curl
