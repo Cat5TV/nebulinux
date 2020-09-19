@@ -108,13 +108,13 @@ else
 
   # Activate NEMS Connector for NEMS Linux
   echo 'Alias /nems-connector/ "/usr/local/share/nebulinux/scripts/web/nems-connector/"
-
 <Directory "/usr/local/share/nebulinux/scripts/web/nems-connector/">
-   Options None
-   AllowOverride None
-</Directory>
-' > /etc/apache2/conf-available/nems-connector.conf
+  Options FollowSymLinks
+  AllowOverride All
+  Require all granted
+</Directory>' > /etc/apache2/conf-available/nems-connector.conf
   a2enconf nems-connector
+  systemctl reload apache2
 
   # Clean up!
   rm -rf $tmpdir
