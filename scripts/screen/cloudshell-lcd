@@ -47,7 +47,12 @@ get_external_ip() {
 }
 
 get_full_date() {
-   export DATE=$(date +"%Y-%m-%d %H:%M")
+   if (( $(date +"+%H") < 13 )); then
+     ampm="AM"
+   else
+     ampm="PM"
+   fi
+   export DATE=$(date +"%Y-%m-%d %I:%M${ampm}")
 }
 
 get_hostname() {
@@ -188,6 +193,10 @@ chvt $OUTPUT_CONSOLE
   clear > $oc
   get_external_ip
 
+  setterm -linewrap off
+  # Clear the line
+  CL="\033[K"
+
 # infinite loop
 while true; do
 
@@ -226,19 +235,18 @@ while true; do
 #   clear > $oc
    # Jump to top of screen rather than clearing (prevent "flashing" effect)
    tput cup 0 0 > $oc
-
    # format the data on screen
 #   echo -e "$CBLUE$HOSTNAME $COFF: $DATE" > $oc
-   echo -e "${CWHITE}Nebulinux$COFF v1.0 - $DATE" > $oc
+   echo -e "${CL}${CWHITE}Nebulinux ${CBLUE}2010$COFF - $DATE" > $oc
 #   echo -e "$OS_DISTRIBUTOR $CGREEN$UBUNTU_VERSION$COFF       Kernel $CGREEN$KERNEL_VERSION$COFF" > $oc
    # line CPU Usage
-   echo -e "CPU Usage: $CBLUE$CPU_USAGE%$COFF  CPU Temp: $CRED$CPU_TEMP$COFF" > $oc
+   echo -e "${CL}CPU Usage: $CBLUE$CPU_USAGE%$COFF  CPU Temp: $CRED$CPU_TEMP$COFF" > $oc
 #   echo -e "A15 : $CBLUE$SPEED_CPU_A15 MHz$COFF   A7 : $CBLUE$SPEED_CPU_A7 MHz$COFF" > $oc
    # Line Memory
-   echo -e "Memory Free: $CBLUE$MEM_AVAILABLE MB$COFF   Used: $CBLUE$MEM_USED MB$COFF" > $oc
+   echo -e "${CL}Memory Free: $CBLUE$MEM_AVAILABLE MB$COFF   Used: $CBLUE$MEM_USED MB$COFF" > $oc
    # Line IP Addresses
-   echo -e "LAN: $CBLUE$INTERNAL_IP$COFF ($CBLUE$SPEED_ETH0 Mbps$COFF)" > $oc
-   echo -e "WAN: $CBLUE$EXTERNAL_IP$COFF" > $oc
+   echo -e "${CL}LAN: $CBLUE$INTERNAL_IP$COFF ($CBLUE$SPEED_ETH0 Mbps$COFF)" > $oc
+   echo -e "${CL}WAN: $CBLUE$EXTERNAL_IP$COFF" > $oc
    #echo -e "IP: $CBLUE$INTERNAL_IP$COFF Ext IP: $CBLUE$EXTERNAL_IP$COFF" > $oc
 #   echo -e "IP: $CBLUE$INTERNAL_IP$COFF @ $CBLUE$SPEED_ETH0 Mbps$COFF" > $oc
    # Line network usage
@@ -247,10 +255,10 @@ while true; do
 
    for i in "${!SATA[@]}"
    do
-      echo "" > $oc
-      echo -e "${SATA[$i]} ${DISK_TEMP[$i]}$COFF" > $oc
-      echo -e "R/W $CBLUE${DISK_R[$i]}$COFF / $CBLUE${DISK_W[$i]}$COFF MB/s" > $oc
-      echo -ne "Disk Used: $CBLUE${DISK_USED[$i]}$COFF ($CBLUE${DISK_USED_PCT[$i]}$COFF)  Free: $CBLUE${DISK_FREE[$i]}$COFF" > $oc
+      echo -e "${CL} " > $oc
+      echo -e "${CL}${SATA[$i]} ${DISK_TEMP[$i]}$COFF" > $oc
+      echo -e "${CL}R/W $CBLUE${DISK_R[$i]}$COFF / $CBLUE${DISK_W[$i]}$COFF MB/s" > $oc
+      echo -ne "${CL}Disk Used: $CBLUE${DISK_USED[$i]}$COFF ($CBLUE${DISK_USED_PCT[$i]}$COFF)  Free: $CBLUE${DISK_FREE[$i]}$COFF" > $oc
    done
 
    # Line Samba
@@ -262,18 +270,19 @@ while true; do
    #RAID STATUS
    if [ -f /var/log/RAID_STATUS4LCD ]; then
      RAID_STATUS4LCD=$(cat /var/log/RAID_STATUS4LCD)
-     echo "" > $oc
-     echo "" > $oc
+     echo -e "${CL} " > $oc
+     echo -e "${CL} " > $oc
+     echo -e "${CL}Raid Status:" > $oc
      if [ "$RAID_STATUS4LCD" = "Normal" ]; then 
-       echo "Raid Status:${CGREEN}" > $oc
+       echo "${CGREEN}" > $oc
        figlet "$RAID_STATUS4LCD" > $oc
        echo "${COFF}" > $oc
      elif [ "$RAID_STATUS4LCD" = "Rebuilding" ]; then
-       echo "Raid Status:${CBLUE}" > $oc
+       echo "${CBLUE}" > $oc
        figlet "$RAID_STATUS4LCD" > $oc
        echo "${COFF}" > $oc
      else
-       echo "Raid Status:${CBRED}" > $oc
+       echo "${CBRED}" > $oc
        figlet "$RAID_STATUS4LCD" > $oc
        echo "${COFF}" > $oc
      fi
