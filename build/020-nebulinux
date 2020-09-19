@@ -75,6 +75,9 @@ else
 
   systemctl reload apache2
 
+  a2enmod php7.4
+  systemctl restart apache2
+
   # Nextcloud
   wget -O $tmpdir/nextcloud.tar.bz2 https://download.nextcloud.com/server/releases/nextcloud-19.0.2.tar.bz2
   cd $tmpdir
