@@ -5,7 +5,7 @@ if [[ -e /var/www/nextcloud ]]; then
 fi
 
 # Ensure the installer is being run from /usr/local/share/nebulinux/build
-if [[ $0 != /usr/local/share/nebulinux/build/01 ]]; then
+if [[ $0 != /usr/local/share/nebulinux/build/020-nebulinux ]]; then
 
   if [[ ! -e /usr/local/share/nebulinux ]]; then
 
@@ -15,7 +15,7 @@ if [[ $0 != /usr/local/share/nebulinux/build/01 ]]; then
   fi
 
   echo
-  echo "Please run: /usr/local/share/nebulinux/build/01"
+  echo "Please run: /usr/local/share/nebulinux/build/020-nebulinux"
   echo
   exit 1
 
@@ -72,10 +72,6 @@ else
   systemctl reload apache2
 
   # Nextcloud
-  password=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
-  echo "CREATE DATABASE nextclouddb;GRANT ALL ON nextclouddb.* TO 'nextcloud'@'localhost' IDENTIFIED BY '$password';FLUSH PRIVILEGES;EXIT;" > $tmpdir/db-create.sql
-  cat $tmpdir/db-create.sql | mysql -u root
-
   wget -O $tmpdir/nextcloud.tar.bz2 https://download.nextcloud.com/server/releases/nextcloud-19.0.2.tar.bz2
   cd $tmpdir
   tar -xf nextcloud.tar.bz2
@@ -98,19 +94,7 @@ else
     echo Done.
   fi
 
-  echo "==============================================="
-  echo "All done! You must activate your installation."
-  echo
-  echo "Visit your server IP in your browser and use the following info:"
-  echo
-  echo "Username / Password: Create your own"
-  echo "Data folder: This should point to your array, or better yet, leave default and mount your array there."
-  echo "Database User: nextcloud"
-  echo "Database Password: $password"
-  echo "Database Name: nextclouddb"
-  echo "Database Server: localhost"
-  echo
-  echo "==============================================="
-  echo
+  # Create drive-prep command in path
+  ln -s /usr/local/share/nebulinux/scripts/drive-prep /usr/local/bin/drive-prep
 
 fi

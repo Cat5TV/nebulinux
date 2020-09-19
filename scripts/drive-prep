@@ -16,14 +16,25 @@ if [[ -e /dev/sda ]]; then
 *********************************
 Your disk array already contains partitions / data.
 
-If you proceed, all data on your disk array will be lost.
+Proceeding will wipe all data, including your Nextcloud database if it exists.
+
+This will be like resetting everything to factory settings, losing all data
+with no way to recover it if you change your mind.
 "
-    read -r -p "Do you want to destroy the array and re-initialize? [y/N] " beta
+
+    read -r -p "Do you want to destroy all data and re-initialize? [y/N] " proceed
     echo ""
-    if [[ $beta =~ ^([yY][eE][sS]|[yY])$ ]]; then
-      echo "Proceeding..."
-      # Instantly destory all partitions on /dev/sda
-      dd if=/dev/zero of=/dev/sda bs=512 count=1 > /dev/null 2>&1
+    if [[ $proceed =~ ^([yY][eE][sS]|[yY])$ ]]; then
+      read -r -p "I'm not kidding. You'll lose EVERYTHING! You're sure? [y/N] " proceed
+      echo ""
+      if [[ $proceed =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        echo "You're the boss. Proceeding..."
+        # Instantly destory all partitions on /dev/sda
+        dd if=/dev/zero of=/dev/sda bs=512 count=1 > /dev/null 2>&1
+      else
+        echo "Phew! Aborted."
+        exit 1
+      fi
     else
       echo "Aborted."
       exit 1
@@ -34,6 +45,8 @@ else
   echo "You do not have a RAID 1 configured. Please fix and try again."
   exit 0
 fi
+
+tmpdir=`mktemp -d -p /usr/local/share/`
 
 # Clear old entries in /etc/fstab
 /bin/sed -i~ '/\/mnt\/data/d' /etc/fstab
@@ -86,11 +99,44 @@ quiet
 mount -a
 
 if mount | grep -q "/mnt/data"; then
+
+  # Initialize a new database
+  systemctl stop mysql
+  if [[ -e /var/lib/mysql~ ]]; then
+    rm -rf /var/lib/mysql~
+  fi
+  mv /var/lib/mysql/ /var/lib/mysql~
+  mysql_install_db
+  systemctl start mysql
+
+  # Create Nextcloud database and set unique password
+  password=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
+  echo "CREATE DATABASE nextclouddb;GRANT ALL ON nextclouddb.* TO 'nextcloud'@'localhost' IDENTIFIED BY '$password';FLUSH PRIVILEGES;EXIT;" > $tmpdir/db-create.sql
+  cat $tmpdir/db-create.sql | mysql -u root
+
   chown -R www-data:www-data /mnt/data
   echo "Success! /mnt/data is now setup for your Array. Use this when activating NextCloud."
+  echo
+  echo "==============================================="
+  echo
+  echo "All done! You must activate your installation."
+  echo
+  echo "Visit your server IP in your browser and use the following info:"
+  echo
+  echo "Username / Password: Create your own"
+  echo "Data folder: This should point to your array, or better yet, leave default and mount your array there."
+  echo "Database User: nextcloud"
+  echo "Database Password: $password"
+  echo "Database Name: nextclouddb"
+  echo "Database Server: localhost"
+  echo
+  echo "==============================================="
+  echo
 else
   # Delete the failed entry from /etc/fstab
   /bin/sed -i~ '/\/mnt\/data/d' /etc/fstab
   echo "Failure!"
 fi
 
+# Clean up
+rm -rf $tmpdir
