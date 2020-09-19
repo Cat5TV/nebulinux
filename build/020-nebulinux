@@ -46,8 +46,8 @@ else
   apt-get install -y figlet
   apt-get install -y console-setup-linux
   rm /bin/cloudshell-lcd
-  cp ../scripts/screen/cloudshell-lcd ../scripts/screen/checkRAID.bash /bin/
-  cp ../scripts/screen/raidmgr_static /usr/bin/
+  cp ../data/screen/cloudshell-lcd ../data/screen/checkRAID.bash /bin/
+  cp ../data/screen/raidmgr_static /usr/bin/
   crontab -l > $tmpdir/cron.tmp
   if ! grep -q "checkRAID.bash" $tmpdir/cron.tmp; then
     printf "\n*/5 * * * * /bin/checkRAID.bash > /dev/null 2>&1\n" >> $tmpdir/cron.tmp

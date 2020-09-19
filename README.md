@@ -15,5 +15,7 @@ THEN (and only then), activate NextCloud by following the usual in-browser confi
 
 Resources:
 
+Nebulinux Web Site: https://nebulinux.com
+
 CloudShell 2 Data Recovery Guide:
 https://wiki.odroid.com/accessory/add-on_boards/xu4_cloudshell2/data_recovery
