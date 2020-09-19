@@ -61,5 +61,6 @@
   /bin/sed -i -- 's,TESTING = "1",TESTING = "0",g' /etc/csf/csf.conf
 
   # Enable and start CSF/LFD
+  echo "You're about to lose connection as the firewall starts. Reconnect."
   csf -e
   csf -R
