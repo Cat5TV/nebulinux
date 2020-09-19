@@ -49,8 +49,12 @@ else
   cp ../data/screen/cloudshell-lcd ../data/screen/checkRAID.bash /bin/
   cp ../data/screen/raidmgr_static /usr/bin/
   crontab -l > $tmpdir/cron.tmp
+  import_cron=0
   if ! grep -q "checkRAID.bash" $tmpdir/cron.tmp; then
     printf "\n*/5 * * * * /bin/checkRAID.bash > /dev/null 2>&1\n" >> $tmpdir/cron.tmp
+    import_cron=1
+  fi
+  if (( $import_cron == 1 )); then
     crontab $tmpdir/cron.tmp
   fi
   /bin/checkRAID.bash && systemctl restart cloudshell-lcd
@@ -101,6 +105,16 @@ else
     </div>
 </article>" > /var/www/html/index.html
   chown -R www-data:www-data /var/www/html
+
+  # Activate NEMS Connector for NEMS Linux
+  echo 'Alias /nems-connector/ "/usr/local/share/nebulinux/scripts/web/nems-connector/"
+
+<Directory "/usr/local/share/nebulinux/scripts/web/nems-connector/">
+   Options None
+   AllowOverride None
+</Directory>
+' > /etc/apache2/conf-available/nems-connector.conf
+  a2enconf nems-connector
 
   # Clean up!
   rm -rf $tmpdir
