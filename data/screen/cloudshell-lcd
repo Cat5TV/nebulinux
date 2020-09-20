@@ -43,7 +43,7 @@ PID=$$
 taskset -cp 1 $PID
 
 get_external_ip() {
-   export EXTERNAL_IP=$(/usr/bin/curl -s https://currentip.xyz/ip)
+   export EXTERNAL_IP=$(/usr/bin/curl -s https://currentip.xyz/ip/)
 }
 
 get_full_date() {
