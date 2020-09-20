@@ -1,0 +1,8 @@
+#!/bin/bash
+  if [[ ! -e /usr/local/share/nebulinux ]]; then
+
+    cd /usr/local/share/
+    git clone https://github.com/Cat5TV/nebulinux
+
+  fi
+
