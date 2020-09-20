@@ -132,7 +132,7 @@ if mount | grep -q "/mnt/data"; then
   echo "Visit your server IP in your browser and use the following info:"
   echo
   echo "Username / Password: Create your own"
-  echo "Data folder: This should point to your array, or better yet, leave default and mount your array there."
+  echo "Data folder: /mnt/data"
   echo "Database User: nextcloud"
   echo "Database Password: $password"
   echo "Database Name: nextclouddb"
