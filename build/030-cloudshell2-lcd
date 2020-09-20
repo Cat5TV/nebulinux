@@ -1,0 +1,4 @@
+#!/bin/bash
+apt-get install -y libfreetype6 systat
+dpkg -i /usr/local/share/nebulinux/build/deb/odroid-cloudshell_20170420-4_armhf.deb
+dpkg -i /usr/local/share/nebulinux/build/deb/cloudshell2-monitoring_1.0.7-2_armhf.deb

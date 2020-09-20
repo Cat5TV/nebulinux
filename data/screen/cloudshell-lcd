@@ -11,7 +11,7 @@
 ############## Configuration
 
 # Disable LCD Slepp mode
-echo -e '\033[9;0]' > /dev/tty1
+echo -e '\033[9;0]' > /dev/tty8
 
 # console font
 # More fonts on: /usr/share/consolefonts
@@ -22,7 +22,7 @@ export CONSOLE_FONT="Lat15-Terminus12x6"
 #export CONSOLE_FONT="Lat15-Terminus14"
 
 # Output Console (ttyX)
-export OUTPUT_CONSOLE="1"
+export OUTPUT_CONSOLE="8"
 
 # Network Interface: enx001e06323348, wlan0, ....
 export NETIF=eth0
