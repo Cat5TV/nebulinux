@@ -130,6 +130,7 @@ else
     hostnamectl set-hostname nebulinux
     echo Done.
   fi
+  echo "127.0.1.1	nebulinux" >> /etc/hosts
 
   # Create drive-prep command in path
   ln -s /usr/local/share/nebulinux/scripts/drive-prep /usr/local/bin/drive-prep
