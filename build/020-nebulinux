@@ -1,7 +1,7 @@
 #!/bin/bash
 if [[ -e /var/www/nextcloud ]]; then
   echo "Nebulinux is already compiled. Aborting."
-  exit 0
+  exit 1
 fi
 
 # Ensure the installer is being run from /usr/local/share/nebulinux/build
@@ -37,7 +37,7 @@ else
   apt-get install -y hdparm
 
   # Cloudshell2
-  apt-get install -y odroid-cloudshell cloudshell2-fan cloudshell-lcd
+  apt-get install -y odroid-cloudshell cloudshell2-fan
   apt-get install -y curl
   apt-get install -y sysstat
   apt-get install -y kbd
@@ -45,19 +45,22 @@ else
   apt-get install -y net-tools
   apt-get install -y figlet
   apt-get install -y console-setup-linux
-  rm /bin/cloudshell-lcd
-  cp ../data/screen/cloudshell-lcd ../data/screen/checkRAID.bash /bin/
-  cp ../data/screen/raidmgr_static /usr/bin/
-  crontab -l > $tmpdir/cron.tmp
-  import_cron=0
-  if ! grep -q "checkRAID.bash" $tmpdir/cron.tmp; then
-    printf "\n*/5 * * * * /bin/checkRAID.bash > /dev/null 2>&1\n" >> $tmpdir/cron.tmp
-    import_cron=1
-  fi
-  if (( $import_cron == 1 )); then
-    crontab $tmpdir/cron.tmp
-  fi
-  /bin/checkRAID.bash && systemctl restart cloudshell-lcd
+
+# Old-style LCD
+#  apt-get install -y cloudshell-lcd
+#  rm /bin/cloudshell-lcd
+#  cp ../data/screen/cloudshell-lcd ../data/screen/checkRAID.bash /bin/
+#  cp ../data/screen/raidmgr_static /usr/bin/
+#  crontab -l > $tmpdir/cron.tmp
+#  import_cron=0
+#  if ! grep -q "checkRAID.bash" $tmpdir/cron.tmp; then
+#    printf "\n*/5 * * * * /bin/checkRAID.bash > /dev/null 2>&1\n" >> $tmpdir/cron.tmp
+#    import_cron=1
+#  fi
+#  if (( $import_cron == 1 )); then
+#    crontab $tmpdir/cron.tmp
+#  fi
+#  /bin/checkRAID.bash && systemctl restart cloudshell-lcd
 
   # Mock X-server
   apt-get install -y xvfb

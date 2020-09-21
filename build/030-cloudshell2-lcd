@@ -1,4 +1,12 @@
 #!/bin/bash
+## https://forum.odroid.com/viewtopic.php?t=34061
+## https://magazine.odroid.com/article/cloudshell2-lcd-display-and-monitoring-tool/
+
 apt-get install -y libfreetype6 sysstat
+
 dpkg -i /usr/local/share/nebulinux/build/deb/odroid-cloudshell_20170420-4_armhf.deb
+modprobe fbtft_device name=hktft9340 busnum=1 rotate=270 speed=30000000
+
 dpkg -i /usr/local/share/nebulinux/build/deb/cloudshell2-monitoring_1.0.7-2_armhf.deb
+
+echo "options fbtft_device name=hktft9340 busnum=1 rotate=270 speed=30000000" > /etc/modprobe.d/odroid-cloudshell.conf
