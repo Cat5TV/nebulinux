@@ -1,0 +1,36 @@
+#!/bin/bash
+echo $0 > /var/www/html/userfiles/nems-build.cur
+
+# Remove resolvconf
+  apt -y remove --purge resolvconf
+
+platform=$(/usr/local/share/nems/nems-scripts/info.sh platform)
+
+if (( $platform == 21 )); then
+
+  echo "Docker handles networking differently, so I will not be configuring NetworkManager."
+  if ! grep -q "PATCH-000003" /var/log/nems/patches.log; then
+    echo "PATCH-000003" >> /var/log/nems/patches.log
+  fi
+
+else
+
+  # dhcpcd5 is a dependency of Raspberry Pi networking, so must remain installed, but will disable
+    /bin/systemctl stop dhcpcd
+    /bin/systemctl disable dhcpcd
+
+  # Disable networking and enable NetworkManager
+    /bin/systemctl enable NetworkManager
+    /bin/systemctl disable networking
+
+  # Use NetworkManager to manage interfaces, even if configured within /etc/network/interfaces
+    if grep -q "managed=false" /etc/NetworkManager/NetworkManager.conf; then
+      /bin/sed -i -- 's,managed=false,managed=true,g' /etc/NetworkManager/NetworkManager.conf
+      /etc/init.d/network-manager restart
+    fi
+
+    if ! grep -q "PATCH-000003" /var/log/nems/patches.log; then
+      echo "PATCH-000003" >> /var/log/nems/patches.log
+    fi
+
+fi

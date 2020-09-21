@@ -1,0 +1,43 @@
+#!/bin/bash
+echo $0 > /var/www/html/userfiles/nems-build.cur
+platform=$(/usr/local/bin/nems-info platform)
+
+# Create skeleton user data
+  wget -O /etc/skel/license.txt https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
+  cp /root/nems/nems-migrator/data/nems/changelog.txt /etc/skel/
+
+# Create nemsadmin user
+  adduser --disabled-password --gecos "" nemsadmin
+
+# Allow user to become super-user
+  usermod -aG sudo nemsadmin
+
+# Set the user password
+  echo -e "nemsadmin\nnemsadmin" | passwd nemsadmin >/tmp/init 2>&1
+
+# Add nemsadmin to sudoers and disable root login if that's successful
+  usermod -aG sudo nemsadmin && passwd -l root
+
+# Add files to nemsadmin home folder (which later get moved to NEMS user account at init)
+  cd /home/nemsadmin
+
+# Delete any default users and remove their home folders
+  userdel -f -r baldnerd # Bald Nerd's Base Images
+  userdel -f -r pi
+  userdel -f -r test #armbian
+  userdel -f -r odroid
+  userdel -f -r rock64
+  userdel -f -r linaro # ASUS TinkerBoard
+  userdel -f -r dietpi
+  userdel -f -r pine # Pine A64+
+  userdel -f -r pine64 # Sopine
+  userdel -f -r admin # Amazon Web Services
+
+# Ensure password authentication is enabled (otherwise cannot login to some features on AWS, nor become root)
+# It is up to you to ensure 1) you are using strong passwords and 2) you only have YOUR IP address(es) allowed to connect in your firewall
+  /bin/sed -i -- 's,PasswordAuthentication no,PasswordAuthentication yes,g' /etc/ssh/sshd_config
+# Load the new config
+  /bin/systemctl restart sshd
+
+# Remove sudo message
+echo "Defaults lecture = never" > /etc/sudoers.d/privacy

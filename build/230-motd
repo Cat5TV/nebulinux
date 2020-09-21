@@ -1,0 +1,18 @@
+#!/bin/bash
+echo $0 > /var/www/html/userfiles/nems-build.cur
+
+# Quick cheat to avoid errors if no files exist
+  touch /etc/update-motd.d/dummy
+
+# Remove any MOTD items included with the base distro
+# Also do this again in 999 to clean up after Cockpit installs
+  rm /etc/update-motd.d/*
+
+# Enable NEMS MOTD
+echo > /etc/motd
+cp /root/nems/nems-migrator/data/1.6/nems/motd.tcl /etc/
+chmod 755 /etc/motd.tcl
+if ! grep -q "/etc/motd.tcl" /etc/profile; then
+  echo "/etc/motd.tcl" >> /etc/profile
+fi
+
