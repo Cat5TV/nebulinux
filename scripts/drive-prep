@@ -133,9 +133,7 @@ if mount | grep -q "/mnt/data"; then
 
   # Create Nextcloud database and set unique password
   password=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
-  echo "CREATE DATABASE nextclouddb;" > $tmpdir/db-create.sql
-  echo "GRANT ALL ON nextclouddb.* TO 'nextcloud'@'localhost' IDENTIFIED BY '$password';" >> $tmpdir/db-create.sql
-  echo "FLUSH PRIVILEGES;" >> $tmpdir/db-create.sql
+  echo "CREATE DATABASE nextclouddb;GRANT ALL ON nextclouddb.* TO 'nextcloud'@'localhost' IDENTIFIED BY '$password';FLUSH PRIVILEGES;" > $tmpdir/db-create.sql
   cat $tmpdir/db-create.sql | mysql -u root
 
   # Lock out the root DB user now that we've initialized everything
