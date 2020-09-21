@@ -29,6 +29,7 @@ with no way to recover it if you change your mind.
       echo ""
       if [[ $proceed =~ ^([yY][eE][sS]|[yY])$ ]]; then
         echo "You're the boss. Proceeding..."
+        echo
         # Instantly destory all partitions on /dev/sda
         dd if=/dev/zero of=/dev/sda bs=512 count=1 > /dev/null 2>&1
       else
