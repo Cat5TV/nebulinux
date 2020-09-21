@@ -1,4 +1,13 @@
 #!/bin/bash
+COFF=$(tput sgr0)
+CBRED=$(tput setab 1)
+CBBLACK=$(tput setab 0)
+CBLACK=$(tput setaf 0)
+CGREEN=$(tput setaf 2)
+CRED=$(tput setaf 1)
+CBLUE=$(tput setaf 6)
+CWHITE=$(tput setaf 7)
+
 if [[ -e /dev/sdb ]]; then
   echo "*********************************
 ***           ERROR           ***
@@ -11,10 +20,10 @@ fi
 
 if [[ -e /dev/sda ]]; then
   if [[ -e /dev/sda1 ]]; then
-    echo "*********************************
-***          WARNING          ***
-*********************************
-Your disk array already contains partitions / data.
+    echo -e "$CBRED"
+    figlet WARNING
+    echo -e "$COFF"
+    echo -e "${CWHITE}Your disk array already contains partitions / data.${COFF}
 
 Proceeding will wipe all data, including your Nextcloud database if it exists.
 
