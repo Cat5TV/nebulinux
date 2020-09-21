@@ -109,13 +109,24 @@ if mount | grep -q "/mnt/data"; then
   mv /var/lib/mysql/ /var/lib/mysql~
   mysql_install_db
   systemctl start mysql
+  sleep 2
+  if [[ ! -e /var/run/mysqld/mysqld.sock ]]; then
+    systemctl restart mysql
+    sleep 2
+    if [[ ! -e /var/run/mysqld/mysqld.sock ]]; then
+      echo "I couldn't start MySQL. Please try again."
+      exit 1
+    fi
+  fi
+
+  # Allow install, even if someone already installed previously. After all, user acknowledged that they're destroying EVERYTHING.
+  echo "" > /var/www/html/config/CAN_INSTALL
 
   # Create Nextcloud database and set unique password
   password=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
   echo "CREATE DATABASE nextclouddb;" > $tmpdir/db-create.sql
   echo "GRANT ALL ON nextclouddb.* TO 'nextcloud'@'localhost' IDENTIFIED BY '$password';" >> $tmpdir/db-create.sql
   echo "FLUSH PRIVILEGES;" >> $tmpdir/db-create.sql
-  echo "EXIT;" >> $tmpdir/db-create.sql
   cat $tmpdir/db-create.sql | mysql -u root
 
   # Lock out the root DB user now that we've initialized everything
@@ -150,26 +161,18 @@ if mount | grep -q "/mnt/data"; then
   echo
   echo "==============================================="
   echo
-  salta=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 21 | head -n 1)
-  saltb=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 9 | head -n 1)
-  secreta=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 29 | head -n 1)
-  secretb=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 18 | head -n 1)
   echo "<?php
-$CONFIG = array (
-  'passwordsalt' => '${salta}/${saltb}',
-  'secret' => '${secreta}/${secretb}',
+$""AUTOCONFIG = array (
   'datadirectory' => '/mnt/data',
   'dbtype' => 'mysql',
   'dbname' => 'nextclouddb',
   'dbhost' => 'localhost',
   'dbport' => '',
-  'dbtableprefix' => 'oc_',
+  'dbtableprefix' => 'nebu_',
   'mysql.utf8mb4' => true,
   'dbuser' => 'nextcloud',
   'dbpassword' => '${password}',
-  'skeletondirectory' => '',
-  'installed' => false,
-);" > /var/www/nextcloud/config/config.php
+);" > /var/www/nextcloud/config/autoconfig.php
 
 
 else

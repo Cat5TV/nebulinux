@@ -89,6 +89,8 @@ else
   cd $tmpdir
   tar -xf nextcloud.tar.bz2
   mv nextcloud /var/www/
+  rm -rf /var/www/nextcloud/core/skeleton
+  ln -s /usr/local/share/nebulinux/skel /var/www/html/core/skeleton
   chown -R www-data:www-data /var/www/nextcloud
   /bin/sed -i "s|<?php p(OC::\$SERVERROOT.'/data'); ?>|/mnt/data|g" /var/www/html/core/templates/installation.php
   /bin/sed -i "s|<?php p(\$_\['directory'\]); ?>|/mnt/data|g" /var/www/html/core/templates/installation.php

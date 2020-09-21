@@ -1,0 +1,31 @@
+Installing MariaDB/MySQL system tables in '/var/lib/mysql' ...
+
+Installation of system tables failed!  Examine the logs in
+/var/lib/mysql for more information.
+
+The problem could be conflicting information in an external
+my.cnf files. You can ignore these by doing:
+
+    shell> /usr/bin/mysql_install_db --defaults-file=~/.my.cnf
+
+You can also try to start the mysqld daemon with:
+
+    shell> /usr/sbin/mysqld --skip-grant-tables --general-log &
+
+and use the command line tool /usr/bin/mysql
+to connect to the mysql database and look at the grant tables:
+
+    shell> /usr/bin/mysql -u root mysql
+    mysql> show tables;
+
+Try 'mysqld --help' if you have problems with paths.  Using
+--general-log gives you a log in /var/lib/mysql that may be helpful.
+
+The latest information about mysql_install_db is available at
+https://mariadb.com/kb/en/installing-system-tables-mysql_install_db
+You can find the latest source at https://downloads.mariadb.org and
+the maria-discuss email list at https://launchpad.net/~maria-discuss
+
+Please check all of the above before submitting a bug report
+at http://mariadb.org/jira
+
