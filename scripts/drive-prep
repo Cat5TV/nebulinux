@@ -88,7 +88,7 @@ fi
 chattr +i /mnt/data
 
 # Create fstab entry
-echo "UUID=$uuid	/mnt/data	ext3	errors=remount-ro,noatime,discard	0	1" >> /etc/fstab
+echo "UUID=$uuid	/mnt/data	ext3	errors=remount-ro,noatime	0	1" >> /etc/fstab
 
 # Set spindown delay and make persistent
 echo "## Configuration created by Nebulinux drive-prep command.
@@ -129,7 +129,9 @@ if mount | grep -q "/mnt/data"; then
   fi
 
   # Allow install, even if someone already installed previously. After all, user acknowledged that they're destroying EVERYTHING.
-  echo "" > /var/www/html/config/CAN_INSTALL
+  if [[ ! -e /var/www/nextcloud/config/CAN_INSTALL ]]; then
+    echo "" > /var/www/nextcloud/config/CAN_INSTALL
+  fi
 
   # Create Nextcloud database and set unique password
   password=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
