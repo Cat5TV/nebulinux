@@ -87,6 +87,8 @@ else
   tar -xf nextcloud.tar.bz2
   mv nextcloud /var/www/
   chown -R www-data:www-data /var/www/nextcloud
+  /bin/sed -i "s|<?php p(OC::\$SERVERROOT.'/data'); ?>|/mnt/data|g" /var/www/html/core/templates/installation.php
+  /bin/sed -i "s|<?php p(\$_\['directory'\]); ?>|/mnt/data|g" /var/www/html/core/templates/installation.php
   if [[ -e /var/www/html ]]; then
     rm -rf /var/www/html
   fi
