@@ -110,6 +110,7 @@ else
       <pre>sudo drive-prep</pre>
     </div>
 </article>" > /var/www/html/index.html
+  ln -s /var/www/html/index.html /var/www/html/index.php
   chown -R www-data:www-data /var/www/html
 
   # Activate NEMS Connector for NEMS Linux
