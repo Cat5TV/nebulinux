@@ -112,8 +112,17 @@ if mount | grep -q "/mnt/data"; then
 
   # Create Nextcloud database and set unique password
   password=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
-  echo "CREATE DATABASE nextclouddb;GRANT ALL ON nextclouddb.* TO 'nextcloud'@'localhost' IDENTIFIED BY '$password';FLUSH PRIVILEGES;EXIT;" > $tmpdir/db-create.sql
+  echo "CREATE DATABASE nextclouddb;" > $tmpdir/db-create.sql
+  echo "GRANT ALL ON nextclouddb.* TO 'nextcloud'@'localhost' IDENTIFIED BY '$password';" >> $tmpdir/db-create.sql
+  echo "FLUSH PRIVILEGES;" >> $tmpdir/db-create.sql
+  echo "EXIT;" >> $tmpdir/db-create.sql
   cat $tmpdir/db-create.sql | mysql -u root
+
+  # Lock out the root DB user now that we've initialized everything
+  rand=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
+  '/usr/bin/mysqladmin' -u root password '$rand'
+  '/usr/bin/mysqladmin' -u root -h nebulinux password '$rand'
+
   # Activate Nextcloud as basedir
   if [[ -d /var/www/html ]]; then
     if [[ -e /var/www/html~ ]]; then
@@ -141,6 +150,28 @@ if mount | grep -q "/mnt/data"; then
   echo
   echo "==============================================="
   echo
+  salta=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 21 | head -n 1)
+  saltb=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 9 | head -n 1)
+  secreta=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 29 | head -n 1)
+  secretb=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 18 | head -n 1)
+  echo "<?php
+$CONFIG = array (
+  'passwordsalt' => '${salta}/${saltb}',
+  'secret' => '${secreta}/${secretb}',
+  'datadirectory' => '/mnt/data',
+  'dbtype' => 'mysql',
+  'dbname' => 'nextclouddb',
+  'dbhost' => 'localhost',
+  'dbport' => '',
+  'dbtableprefix' => 'oc_',
+  'mysql.utf8mb4' => true,
+  'dbuser' => 'nextcloud',
+  'dbpassword' => '${password}',
+  'skeletondirectory' => '',
+  'installed' => false,
+);" > /var/www/nextcloud/config/config.php
+
+
 else
   # Delete the failed entry from /etc/fstab
   /bin/sed -i~ '/\/mnt\/data/d' /etc/fstab

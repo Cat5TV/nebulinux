@@ -81,6 +81,9 @@ else
   a2enmod php7.4
   systemctl restart apache2
 
+  # Allow previews of LibreOffice docs by installing it
+  apt-get install -y libreoffice
+
   # Nextcloud
   wget -O $tmpdir/nextcloud.tar.bz2 https://download.nextcloud.com/server/releases/nextcloud-19.0.2.tar.bz2
   cd $tmpdir
