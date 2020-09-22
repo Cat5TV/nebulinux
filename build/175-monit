@@ -6,12 +6,10 @@ ver=5.26.0
 # stop it if it is already running from a previous apt task
 /bin/systemctl stop monit.service
 
-echo $0 > /var/www/html/userfiles/nems-build.cur
-
-yes | apt install libssl-dev libpam0g-dev gcc make
+apt-get install -y libssl-dev libpam0g-dev gcc make
 
 tmpdir=`mktemp -d -p /usr/src/`
-echo $tmpdir
+
 wget -O $tmpdir/monit.tar.gz https://mmonit.com/monit/dist/monit-$ver.tar.gz
 cd $tmpdir
 tar xvzf monit.tar.gz
@@ -38,10 +36,6 @@ echo "[Unit]
 
 cp -Rf /root/nems/nems-migrator/data/1.6/monit /etc/
 chmod 600 /etc/monit/monitrc
-# Don't need this folder, but makes it backward compatible with 1.4 confs
-if [[ ! -d /etc/monit/conf-enabled ]]; then
-  mkdir -p /etc/monit/conf-enabled
-fi
 if [[ ! -d /var/lib/monit ]]; then
   mkdir -m 0750 -p /var/lib/monit
 fi
@@ -50,8 +44,4 @@ fi
 /bin/systemctl start monit
 
 # Remove the tmp files
-cd /tmp
 rm -rf $tmpdir
-
-# don't error out of run-parts
-echo "Done."

@@ -1,25 +1,33 @@
 #!/bin/bash
-echo $0 > /var/www/html/userfiles/nems-build.cur
-platform=$(/usr/local/bin/nems-info platform)
 
 # Create skeleton user data
-  wget -O /etc/skel/license.txt https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
-  cp /root/nems/nems-migrator/data/nems/changelog.txt /etc/skel/
+  echo "Nebulinux - https://nebulinux.com
+Copyright (C) 2020 Robbie Ferguson
 
-# Create nemsadmin user
-  adduser --disabled-password --gecos "" nemsadmin
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>." > /etc/skel/license.txt
+
+# Create user
+  adduser --disabled-password --gecos "" nadmin
 
 # Allow user to become super-user
-  usermod -aG sudo nemsadmin
+  usermod -aG sudo nadmin
 
 # Set the user password
-  echo -e "nemsadmin\nnemsadmin" | passwd nemsadmin >/tmp/init 2>&1
+  echo -e "nadmin\nnadmin" | passwd nadmin >/tmp/init 2>&1
 
-# Add nemsadmin to sudoers and disable root login if that's successful
-  usermod -aG sudo nemsadmin && passwd -l root
-
-# Add files to nemsadmin home folder (which later get moved to NEMS user account at init)
-  cd /home/nemsadmin
+# Add to sudoers and disable root login if that's successful
+  usermod -aG sudo nadmin && passwd -l root
 
 # Delete any default users and remove their home folders
   userdel -f -r baldnerd # Bald Nerd's Base Images

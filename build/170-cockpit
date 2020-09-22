@@ -1,22 +1,5 @@
 #!/bin/bash
-echo $0 > /var/www/html/userfiles/nems-build.cur
-
-platform=$(/usr/local/share/nems/nems-scripts/info.sh platform)
-
-# POSSIBLY move to self-compile
-# https://tech.maweki.de/installing-cockpit-on-raspbian.html
-# https://github.com/cockpit-project/cockpit/releases
-
-# May not be necessary since Buster now includes it in repos
-
 # Install Cockpit
   # Install cockpit on all but Docker
-  if (( $platform != 21 )); then
-    apt update
-    apt -y install cockpit
-  fi
-
-  # Install cockpit-networkmanager on all but Docker and AWS
-  if (( $platform != 21 )) && (( $platform != 22 )); then
-    apt -y install cockpit-networkmanager
-  fi
+  apt-get install -y cockpit
+  apt-get install -y cockpit-networkmanager
