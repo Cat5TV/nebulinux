@@ -5,21 +5,10 @@ if [[ -e /var/www/nextcloud ]]; then
 fi
 
 # Ensure the installer is being run from /usr/local/share/nebulinux/build
-if [[ $0 != /usr/local/share/nebulinux/build/020-nebulinux ]]; then
-
-  if [[ ! -e /usr/local/share/nebulinux ]]; then
-
+  if [[ $0 != /usr/local/share/nebulinux/build/020-nebulinux ]]; then
     cd /usr/local/share/
     git clone https://github.com/Cat5TV/nebulinux
-
   fi
-
-  echo
-  echo "Please run: /usr/local/share/nebulinux/build/020-nebulinux"
-  echo
-  exit 1
-
-else
 
   tmpdir=`mktemp -d -p /usr/local/share/`
 
@@ -146,4 +135,3 @@ else
   # Create drive-prep command in path
   ln -s /usr/local/share/nebulinux/scripts/drive-prep /usr/local/bin/drive-prep
 
-fi
